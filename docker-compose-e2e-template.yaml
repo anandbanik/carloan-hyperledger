@@ -1,0 +1,118 @@
+# Copyright WalmarLabs. All Rights Reserved.
+# author: anand.banik@walmartlabs.com
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+networks:
+  byfn:
+services:
+  ca0:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-dealer
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.dealer.walmartlabs.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.dealer.walmartlabs.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/dealer.walmartlabs.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerDealer
+    networks:
+      - byfn
+
+  ca1:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-banker
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.banker.walmartlabs.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.banker.walmartlabs.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/banker.walmartlabs.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerBanker
+    networks:
+      - byfn
+
+  ca2:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-insurance
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.insurance.walmartlabs.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.insurance.walmartlabs.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/insurance.walmartlabs.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerInsurance
+    networks:
+      - byfn
+
+  ca3:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-dmv
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.dmv.walmartlabs.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY
+    ports:
+      - "9054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.dmv.walmartlabs.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA2_PRIVATE_KEY -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/dmv.walmartlabs.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerDmv
+    networks:
+      - byfn
+
+  orderer.walmartlabs.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.walmartlabs.com
+    container_name: orderer.walmartlabs.com
+    networks:
+      - byfn
+
+  peer0.dealer.walmartlabs.com:
+    container_name: peer0.dealer.walmartlabs.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.dealer.walmartlabs.com
+    networks:
+      - byfn
+
+  peer0.insurance.walmartlabs.com:
+    container_name: peer1.insurance.walmartlabs.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.insurance.walmartlabs.com
+    networks:
+      - byfn
+
+  peer0.banker.walmartlabs.com:
+    container_name: peer0.banker.walmartlabs.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.banker.walmartlabs.com
+    networks:
+      - byfn
+
+  peer0.dmv.walmartlabs.com:
+    container_name: peer0.dmv.walmartlabs.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.dmv.walmartlabs.com
+    networks:
+      - byfn
